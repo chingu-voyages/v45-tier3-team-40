@@ -2,6 +2,7 @@
 
 # other
 .tool-versions
+.env
 
 # dependencies
 /node_modules
