@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { missingFieldsError } from "@/lib/errors/missingFields";
 import { badRequestError } from "@/lib/errors/badResquest";
-import validator from "validator";
-import { isValidPhoneNumber } from "libphonenumber-js";
 import { invalidFieldsError } from "@/lib/errors/invalidFields";
 import { validateChefData } from "@/lib/validation/chefData";
+import { validateRequiredFields } from "@/lib/validation/requiredFields";
 
 const prisma = new PrismaClient();
 
@@ -21,21 +20,12 @@ export async function POST(request: NextRequest) {
       "specialties",
       "address",
     ];
-    const missingFields = [];
-    for (const field of requiredFields) {
-      if (!requestData[field]) {
-        missingFields.push(field);
-      }
-    }
-
+    const missingFields = validateRequiredFields(requestData, requiredFields);
     if (missingFields.length > 0) {
       return missingFieldsError(missingFields);
     }
 
-    const { name, phone, picture, bio, specialties, address } = requestData;
-
     const invalidFields = validateChefData(requestData);
-
     if (invalidFields.length > 0) {
       return invalidFieldsError(invalidFields);
     }
