@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { missingFieldsError } from "@/lib/errors/missingFields";
+import { badRequestError } from "@/lib/errors/badResquest";
 
 const prisma = new PrismaClient();
 
@@ -24,19 +26,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (missingFields.length > 0) {
-      return NextResponse.json(
-        {
-          error: "MISSING_FIELDS",
-          message: `Missing ${missingFields.join(", ")} fields`,
-          data: missingFields,
-        },
-        { status: 400 },
-      );
+      return missingFieldsError(missingFields);
     }
 
     return NextResponse.json(requestData);
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ error: "BAD_REQUEST" }, { status: 400 });
+    return badRequestError();
   }
 }
