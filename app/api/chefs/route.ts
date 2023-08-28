@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { missingFieldsError } from "@/lib/errors/missingFields";
-import { badRequestError } from "@/lib/errors/badResquest";
-import { invalidFieldsError } from "@/lib/errors/invalidFields";
+import { missingFieldsError } from "@/lib/error/missingFields";
+import { badRequestError } from "@/lib/error/badResquest";
+import { invalidFieldsError } from "@/lib/error/invalidFields";
 import { validateChefData } from "@/lib/validation/chefData";
 import { validateRequiredFields } from "@/lib/validation/requiredFields";
 
@@ -30,7 +30,13 @@ export async function POST(request: NextRequest) {
       return invalidFieldsError(invalidFields);
     }
 
-    return NextResponse.json(requestData);
+    const chef = await prisma.chef.create({
+      data: {
+        ...requestData,
+      },
+    });
+
+    return NextResponse.json(chef);
   } catch (error) {
     console.log(error);
     return badRequestError();
